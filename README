@@ -1,0 +1,13 @@
+A simple x11 utility to make an x11 window invisible to mouse events. While
+this program is active any mouse events over the target window will fall
+through to the next window below it.
+
+Hitting Ctrl-C will exit this program and undo the effects on the target
+window.
+
+Usage:
+  ./noclickforyou <window-id>
+
+If you want to click to select a target window, you can use a program such as
+xdotool or slw from wmutils. For example:
+  ./noclickforyou $(xdotool selectwindow)
