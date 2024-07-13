@@ -11,13 +11,13 @@ Window window;
 
 void restore(int signum)
 {
-	(void)signum;
+    (void)signum;
 
-	XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, None);
+    XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, None);
     XFlush(display);
     XCloseDisplay(display);
 
-	exit(0);
+    exit(0);
 }
 
 int main(int argc, char **argv)
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     signal(SIGINT, restore);
     signal(SIGTERM, restore);
 
-	for (;;) {
-		pause();
-	}
+    for (;;) {
+        pause();
+    }
 }
