@@ -6,22 +6,19 @@
 #include <X11/extensions/Xfixes.h>
 #include <X11/Xlib.h>
 
-Display *display;
-Window window;
+sig_atomic_t running;
 
 void restore(int signum)
 {
     (void)signum;
-
-    XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, None);
-    XFlush(display);
-    XCloseDisplay(display);
-
-    exit(0);
+    running = 0;
 }
 
 int main(int argc, char **argv)
 {
+    Display *display;
+    Window window;
+
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <window_id>\n", argv[0]);
         return 1;
@@ -45,12 +42,24 @@ int main(int argc, char **argv)
     XserverRegion empty_region = XFixesCreateRegion(display, NULL, 0);
     XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, empty_region);
     XFixesDestroyRegion(display, empty_region);
-    XFlush(display);
+
+    XSelectInput(display, window, StructureNotifyMask);
 
     signal(SIGINT, restore);
     signal(SIGTERM, restore);
 
-    for (;;) {
-        pause();
+    running = 1;
+    while (running) {
+        XEvent event;
+        XNextEvent(display, &event);
+        if (event.type == DestroyNotify) {
+            window = None;
+            running = 0;
+        }
     }
+
+    if (window) {
+        XFixesSetWindowShapeRegion(display, window, ShapeInput, 0, 0, None);
+    }
+    XCloseDisplay(display);
 }
